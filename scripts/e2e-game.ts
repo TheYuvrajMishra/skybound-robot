@@ -26,7 +26,7 @@ function check(cond: boolean, label: string): void {
 
 async function main(): Promise<void> {
   const browser = await chromium.launch({ args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--no-sandbox", "--disable-gpu-sandbox"] });
-  const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
   const errors: string[] = [];
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
   page.on("pageerror", (e) => errors.push(String(e)));
@@ -57,7 +57,15 @@ async function main(): Promise<void> {
 
     // Lose: spawn a golem point-blank in the squad lane; it kills the whole squad.
     await page.evaluate(() => (window as unknown as { __game: { spawnEnemy: (k: string, x: number, z: number) => void } }).__game.spawnEnemy("golem", 2.4, -0.5));
-    s = await waitFor(page, (x) => x.gameOver === true, "golem contact leads to game over", 20000);
+    // Iter-12: timeout 120 s (was 20 s) — at 1600x900 each __advance
+    // cost 2.8-6.6 s under SwiftShader (probe 2026-10-30: gameOver
+    // fired correctly after 4 advances, but the 20 s wall-clock budget
+    // allowed only ~3-4 iterations, so the wait timed out with the sim
+    // provably healthy: dying=true, distance frozen only because no
+    // further advance had completed). The viewport is also 960x540
+    // now (was 1600x900): e2e asserts snapshot values only, never
+    // pixels, so the smaller buffer is ~3x faster per advance.
+    s = await waitFor(page, (x) => x.gameOver === true, "golem contact leads to game over", 120000);
     check(s.gameOver === true, "game over reached");
     await page.getByRole("button", { name: /play again/i }).click();
     await page.waitForTimeout(500);

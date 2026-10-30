@@ -55,7 +55,7 @@ async function main(): Promise<void> {
   try {
     await shot(browser, `${BASE}/?shot=hero`, path.join(OUT, "hero-landscape.png"), 1600, 900);
     await shot(browser, `${BASE}/?shot=hero`, path.join(OUT, "hero-portrait.png"), 900, 1600);
-    for (const anim of ["robot-fire", "golem-walk", "boulder-break"]) {
+    for (const anim of ["robot-fire", "golem-walk", "boulder-break", "death"]) {
       await animFrames(browser, anim, path.join(OUT, `anim-${anim}`));
     }
   } finally {

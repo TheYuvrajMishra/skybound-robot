@@ -94,9 +94,13 @@ export function formationSlots(count: number): { x: number; z: number }[] {
     const col = i % cols;
     const row = Math.floor(i / cols);
     const rowCols = Math.min(cols, n - row * cols);
-    // 0.8 spacing: at 0.55 the robots touched shoulder-to-shoulder and read
-    // as one fused blob; 0.8 leaves a clear gap between neighbours.
-    slots.push({ x: (col - (rowCols - 1) / 2) * 0.8, z: row * 0.65 });
+    // Iter-10 spacing 1.0 (was 0.8): the 1.6x blaster widened each
+    // robot's silhouette to ~0.8, closing the 0.8 gaps so the squad
+    // read as one white mass. 1.0 restores a visible gap; 1.4 (as one
+    // reviewer asked) would shrink the centre clamp to 0.6 and cripple
+    // lane reach, so 1.0 is the compromise. FormationHalf/clamp/wall
+    // math all derive from these slots, so gameplay follows.
+    slots.push({ x: (col - (rowCols - 1) / 2) * 1.0, z: row * 0.65 });
   }
   return slots;
 }
@@ -139,8 +143,8 @@ export function segmentBoxT(
 
 function spawnEnemy(s: SimState, kind: EnemyKind, x: number, z: number): void {
   const base = kind === "crawler" ? CONFIG.CRAWLER : CONFIG.GOLEM;
-  const hpScale = Math.min(2.5, 1 + s.distance / 800);
-  const spScale = Math.min(1.6, 1 + s.distance / 1200);
+  const hpScale = Math.min(CONFIG.HP_SCALE_CAP, 1 + s.distance / CONFIG.HP_SCALE_PER_DIST);
+  const spScale = Math.min(CONFIG.SP_SCALE_CAP, 1 + s.distance / CONFIG.SP_SCALE_PER_DIST);
   s.enemies.push({
     id: s.nextId++, kind, x: clamp(x, -1.6, 1.6), z, prevX: x, prevZ: z,
     hp: base.hp * hpScale, maxHp: base.hp * hpScale,
@@ -151,7 +155,7 @@ function spawnEnemy(s: SimState, kind: EnemyKind, x: number, z: number): void {
 
 function spawnWave(s: SimState): void {
   s.waveNumber++;
-  const budget = Math.min(12, 4 + Math.floor(s.distance / 120) + s.waveNumber);
+  const budget = Math.min(CONFIG.WAVE_BUDGET_CAP, 4 + Math.floor(s.distance / 120) + s.waveNumber);
   const golems = Math.min(3, Math.floor(budget / 6));
   const crawlers = budget - golems;
   let i = 0;
@@ -214,9 +218,53 @@ export function tick(s: SimState, dtIn: number, input: SimInput): void {
 
   // 2. MOVEMENT (critically damped spring, clamped lateral speed)
   s.prevSquadX = s.squadX;
-  const accel = (s.targetX - s.squadX) * CONFIG.SPRING_STIFFNESS - s.velX * CONFIG.SPRING_DAMPING;
-  s.velX = clamp(s.velX + accel * dt, -CONFIG.MAX_LAT_SPEED, CONFIG.MAX_LAT_SPEED);
-  s.squadX = clamp(s.squadX + s.velX * dt, -maxX, maxX);
+  // Iter-13: freeze the squad spring while dying (the scroll below
+  // continues, so the world still moves during the 1.2 s death
+  // animation, but squadX and the camera hold still). Previously the
+  // dead squad's squadX slid 1.40 -> 2.39 toward its held target
+  // during dying (round-6 A low, cosmetic and invisible — squad 0
+  // renders no robots — but it drifted the camera and confused every
+  // playtest report's post-game-over readings).
+  if (!s.dying) {
+    // Iter-12: the boulder wall is a TARGET clamp, not a position snap.
+    // The old code snapped squadX to the wall each tick while the spring
+    // pulled back toward the held target, so the two fought and the
+    // sampled position oscillated 0.3-0.8 per 0.5 s step during wall
+    // engagement (round-5 low). Now the wall constrains the effective
+    // target for this tick (computed from pre-scroll boulder positions;
+    // 1 tick of staleness is ~0.02 of wall travel) and the spring moves
+    // smoothly to it at <= MAX_LAT_SPEED — no snaps, no oscillation,
+    // and the held input (s.targetX) is untouched, so the squad springs
+    // back when the boulder passes. Formation growth/shrink while a
+    // boulder is alongside only moves the clamped target; the spring
+    // absorbs that smoothly too.
+    let effTarget = s.targetX;
+    for (const b of s.boulders) {
+      if (!b.alive || b.demo || b.z < -8 || b.z > 1.2) continue;
+      const p = clamp((b.z + 8) / 7.4, 0, 1); // 0 far, 1 at the squad line
+      if (b.x >= s.squadX) {
+        const wall = maxX + (b.x - CONFIG.BOULDER_HALF - half - 0.15 - maxX) * p;
+        if (wall < effTarget) effTarget = wall;
+      } else {
+        const wall = -maxX + (b.x + CONFIG.BOULDER_HALF + half + 0.15 + maxX) * p;
+        if (wall > effTarget) effTarget = wall;
+      }
+    }
+    const accel = (effTarget - s.squadX) * CONFIG.SPRING_STIFFNESS - s.velX * CONFIG.SPRING_DAMPING;
+    s.velX = clamp(s.velX + accel * dt, -CONFIG.MAX_LAT_SPEED, CONFIG.MAX_LAT_SPEED);
+    // Iter-13: rate-limit the road clamp (was a hard clamp): when the
+    // formation grows (gate doubles), maxX shrinks and the hard clamp
+    // teleported squadX up to 1.0 in one tick (round-6 B low: 3 -> 9
+    // snapped -1.4 -> -0.4). Sliding back at MAX_LAT_SPEED keeps the
+    // formation on the road without a teleport, and the fighting
+    // velocity component is killed so the spring and the clamp do not
+    // fight (which would pin the squad at the boundary).
+    const unclamped = s.squadX + s.velX * dt;
+    const maxStep = CONFIG.MAX_LAT_SPEED * dt;
+    if (unclamped > maxX) { s.squadX = Math.max(maxX, s.squadX - maxStep); if (s.velX > 0) s.velX = 0; }
+    else if (unclamped < -maxX) { s.squadX = Math.min(-maxX, s.squadX + maxStep); if (s.velX < 0) s.velX = 0; }
+    else s.squadX = unclamped;
+  }
   if (!Number.isFinite(s.squadX) || !Number.isFinite(s.velX)) { s.squadX = 0; s.velX = 0; }
   s.time += dt;
   s.scrollSpeed = Math.min(CONFIG.SCROLL_MAX, CONFIG.SCROLL_BASE + s.distance * CONFIG.SCROLL_GROWTH);
@@ -233,24 +281,8 @@ export function tick(s: SimState, dtIn: number, input: SimInput): void {
     if (!e.alive || e.contact) continue;
     e.z += (s.scrollSpeed + e.speed) * dt;
   }
-  // Boulders are solid: a sliding wall, not a snap. The old code teleported
-  // the squad to pushTo the tick the boulder reached the squad line (a
-  // 1.1-unit jump for a right-holding squad, and it overwrote targetX).
-  // Now the wall position blends from the road clamp to pushTo as the
-  // boulder approaches from z=-8 to the line, so the squad is guided
-  // clear at ~1 unit/s with its held input intact; when the boulder
-  // passes, the squad springs back toward its target.
-  for (const b of s.boulders) {
-    if (!b.alive || b.demo || b.z < -8 || b.z > 1.2) continue;
-    const p = clamp((b.z + 8) / 7.4, 0, 1); // 0 far, 1 at the squad line
-    if (b.x >= s.squadX) {
-      const wall = maxX + (b.x - CONFIG.BOULDER_HALF - half - 0.15 - maxX) * p;
-      if (s.squadX > wall) { s.squadX = wall; if (s.velX > 0) s.velX = 0; }
-    } else {
-      const wall = -maxX + (b.x + CONFIG.BOULDER_HALF + half + 0.15 + maxX) * p;
-      if (s.squadX < wall) { s.squadX = wall; if (s.velX < 0) s.velX = 0; }
-    }
-  }
+  // (Boulder wall: see the target clamp in section 2 above — the wall
+  // constrains the effective target, so no position snap is needed here.)
 
   // 3. SPAWN
   if (s.distance >= s.nextGateDist) {
@@ -408,6 +440,12 @@ export function tick(s: SimState, dtIn: number, input: SimInput): void {
     if (b.pendingGrant && !b.granted) {
       b.granted = true;
       b.alive = false;
+      // Iter-12: a grant to a dead squad (squad 0 during the 1.2 s death
+      // animation, before gameOver fires) is consumed but applies
+      // nothing — the boulder still crumbles (alive=false) instead of
+      // freezing at 0 HP on the game-over screen, and no weapon/boost
+      // is granted to a squad that no longer exists (round-5 low).
+      if (s.squadCount <= 0) continue;
       if (WEAPONS[b.tier].tier >= WEAPONS[s.weapon].tier && s.weapon !== b.tier) {
         s.weapon = b.tier;
         s.events.push({ type: "boulderGrant", kind: b.tier });

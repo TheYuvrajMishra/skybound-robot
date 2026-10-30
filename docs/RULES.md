@@ -70,6 +70,13 @@ the last sane value, never propagated.
 
 - Every robot shoots straight ahead from its own formation slot x, at its
   weapon's interval, with a small auto-aim cone (`AUTO_AIM_DEG`, default ±6°).
+  Deviation (iter-12, superseding iter-9's 4°): the live value is ±2°.
+  At 4°, a bullet from the right robot (x 1.0) bent 2.1 m over 30 m into
+  the boulder lane (2.4), so centre/AFK runs auto-upgraded by RNG luck
+  (round 5). At 2°, centre fire covers the enemy column (max |x| 2.0)
+  but cannot reach the boulder lane, so boulders require deliberate
+  right-lane play; go-right play is unaffected (right robot at 2.4 fires
+  straight into boulders).
 - Weapon tiers, strictly ordered: pistol < minigun < rocket-launcher <
   targeting-rifle. The rocket has area-of-effect splash; the targeting rifle
   homes slightly and pierces (it tracks a per-projectile `hitIds` set, so one
