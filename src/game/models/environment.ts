@@ -1,0 +1,9 @@
+export { createGate } from './gate';
+export { createBoulder } from './boulder';
+export { createRoadTile } from './roadTile';
+export { createBanner } from './banner';
+export { createRailPost } from './railPost';
+export { createSpire } from './spire';
+export { createFloatingPlatform } from './floatingPlatform';
+export { createCloud } from './cloud';
+export { createProjectiles } from './projectiles';
