@@ -1,0 +1,38 @@
+# CHANGELOG (hash -> what changed)
+
+- 52922dbbcbf03a5fa4594f0cf3c2e1fb5561f7f2 feat(scaffold): Next.js + Three.js viewer, gallery, shoot script
+- 4e8c97f1288803bd1f66cfa6acc2542acd18528b feat(models): v1 all 13 subjects, palette, registry
+- 7ac5bae53072615bd94bf5679a4b0b6a704417ad chore: ignore generated files and local reference sheets
+- f2d61684dc1d13315748657501d1f0c9e93f6b1f fix(model/robot): iter 2 - leg gap closed, blaster forward, cyan glow less washed out
+- e0d1e012383429ac2c1f3cd37429a03952f6661a fix(model/golem): iter 2 - head forward out of torso, leg overlap, lava glow less washed out
+- 0f93c5103a61f101ae4b49d843d4581c15a93bc1 fix(models): iter 2 - glow intensities reduced, road runway framing, gate/road close anchors
+- 49e619092a31c7c73f26d7ac69df69b480a7ac58 fix(model/robot): iter 3 - chibi proportions, domed helmet, bent stance, tapered torso
+- 481f08e07c67bd60b22b4f561c088e7c99f393c7 fix(model/crawler): iter 3 - round spiked dome, fanned 6 legs, large orange eyes
+- 2a2c3c825b6960935281ea7ea4cb41fd4dd45384 fix(model/golem): iter 3 - large head with brow and pebble chin, clustered fists, pelvis, back plate with lava ring, no diamond plate
+- 010f238bd93893cf0a52387927818a62698c17db fix(models/weapons): iter 3 - vertical minigun 6-barrel hex ring with hub and loop handle, vertical launcher with arms and fins, vertical rifle with side scope, tapered pistol with trigger guard
+- 877d42eeeac82883323ced963ad71499717bc85b fix(models): iter 3 - NoToneMapping viewer, vertical-weapon holding, tapered gate posts with taller glass, finned rockets, seated spire crystal, thicker platform, bigger cloud
+- fcb2542b87aa6aa338f76ab3e6f645fed1251560 fix(models): iter 3b - robot feet swing outward, minigun barrels join receiver, loop handle joins grip block
+- 1b3142c1e2264f0e1a8b077dbbbb7a2b7081c79a fix(models): iter 4 - gate/boulder/road/side-props/sky-props/projectiles reviewer fixes
+- 1e48bc4bf517794e5b99b702d62cb69959c3396d fix(models/weapons): iter 4 - rifle rebuild, pistol short barrels, minigun/launcher details
+- 22f3b7701835afa18a651c05e000816c3d5e9165 fix(models): iter 4 - robot/crawler/golem reviewer nits
+- 546ba3eb157f8e798263e0a6429c6523378a99ef fix(models): iter 4b - side-props emblem, sky-props strips/ladder, road close anchor, rifle strips/muzzle join
+- 682b472bab610432abd6770a7fe15511eb2e49b4 fix(model/road): iter 4c - close anchor to tube height
+- ef5505abce0cc84b83cff188953fbc62bfe6243c fix(model/road): iter 4d - close anchor lateral offset for rail detail view
+- b88d78842ec4d6907322ce6f28da35ab958e3b31 fix(viewer): iter 5 - per-axis ortho fit, width-aware close distance, road runway fit
+- 823fa9ffb423de85de35c041cb17ddf90b5f27f3 fix(models/palette): iter 5 - lighten dark greys so models stop reading near-black
+- 594abb62b1842c8d043bf4d11af6c67ce70837b1 fix(models/characters): iter 5 - robot/crawler/golem reviewer fixes + surface attachment audit
+- 7ec66472ff3aa4f744a3d9359146fee6106ecc76 fix(models/weapons): iter 5 - pistol/minigun/launcher/rifle reviewer fixes, launcher arms restored
+- 7f35cf9cd94d934ab82f91f5f112317ae6a062b2 fix(models/environment): iter 5 - gate/boulder/road/side/sky/projectiles reviewer fixes + tri trims
+- f0a5f924fc708f0c7bbb89f12eaf01365c7c9eb6 docs(model-log): deviations, iterations summary, iter 5 notes + arbitrations
+- c1697272f9d40e8703ea7fff1b231bd9b708c843 fix(viewer): iter 6 - brighter fill light, closeDir camera direction for muzzle-face close-ups
+- a6d4c5d12d67da17f78fe551060e71051ae316e9 fix(models/characters): iter 6 - robot oval visor + torus ear rims + bent elbows, crawler feet clear body + bigger spikes, golem out-swung arms + continuous cracks/ring
+- 126dc9ad5de62c387e4518f223d8a4849a360610 fix(models/weapons): iter 6 - pistol straighter grip + fat lower barrel, minigun muzzle rings + muzzle-face close, launcher diagonal fins + lower strips, rifle lens face + 8 prongs + triangular thumbhole
+- c037ede60693a42d08a66b5f2e2d776dc4a11752 fix(models/environment): iter 6 - gate wider base + no back zigzags, boulder base slab + large rim lumps + tucked pebbles, road enclosed X-braces + flush rails, side-props thick pole + dome finial + segmented glow, sky-props bigger gaps, projectiles ogive noses + chunk exhaust + 12 burst blades
+- 28c86def7ec02c425cb7a2d54ddd844c3fa72417 fix(model/robot): iter 6b - visor oval height via local sz (was a full circle), blaster moved onto the bent fist
+- 734338321d919eeb3bc6429308244d539598d4f4 fix(model/boulder): iter 6b - replace full-width base slab with a small central bottom mound (slab read as the deleted base wedge)
+- 47ff8192250893ad919a8316a2a61e59543d5eca docs(model-log): iter 9 review scores + iter 6 changes and arbitrations
+- 7fa2600fd115572087eafd06bb71ae65af5a36f8 feat(scripts): shoot-holding.ts - iso holding verification shots for all 4 weapons
+- 6dd488dab55fec1dc0fdcd2c9f677c24fc577d21 fix(models/characters): iter 7 - robot wider visor + thinner ear rims + longer blaster, crawler higher knees + forward head + upper fangs, golem pelvis deleted + connected diagonal lava fissure + smaller back plate/ring
+- 62ca6344e1880e03cfe91dbfa3eb0ebbcc767d70 fix(models/weapons): iter 7 - minigun 5-seg barrels (rims deleted, tri-neutral), launcher small fins + longer wider cone, rifle frame thumbhole stock + front lens disc deleted + slimmer prongs, pistol grip side panels
+- a4e0c5994a0ae944d26c92c7af1cad16ba558b31 fix(models/environment): iter 7 - gate zigzags deleted, boulder connected cracks + corner shards + flattened rim, road diagonal seams deleted + side closeDir, side-props flat cap + taller finial + back white core, sky-props proud strips + bigger ring + thinner deck, projectiles wider rockets + frustum flame + chunked burst core + back panels deleted
+- 167c79b715e5eb649e5055092b1d2417dcbe8654 docs(model-log): iter 6b fixes, holding verification, iter-10 scores + arbitrations, iter 7 changes
