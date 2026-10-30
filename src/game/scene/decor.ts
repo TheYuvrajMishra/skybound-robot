@@ -1,4 +1,0 @@
-import * as THREE from 'three';
-import { createBanner, createSpire, createCloud, createFloatingPlatform } from '../models/environment';
-export function createDecor(scene: THREE.Scene): THREE.Group[] { const decor: THREE.Group[] = []; for (let i = 0; i < 6; i++) { const b = createBanner(); b.position.set(i % 2 ? 7.5 : -7.5, 0, -i * 22); scene.add(b); decor.push(b); } for (let i = 0; i < 4; i++) { const s = createSpire(); s.position.set(i % 2 ? 28 : -28, -2, -30 - i * 28); s.scale.setScalar(1.4); scene.add(s); decor.push(s); } for (let i = 0; i < 5; i++) { const c = createCloud(); c.position.set(-20 + i * 10, 14 + (i % 3), -50 - i * 12); scene.add(c); decor.push(c); } const plat = createFloatingPlatform(); plat.position.set(18, 8, -60); scene.add(plat); decor.push(plat); return decor; }
-export function updateDecor(decor: THREE.Group[], dz: number): void { for (const d of decor) { d.position.z += dz * 0.9; if (d.position.z > 20) d.position.z -= 130; } }
