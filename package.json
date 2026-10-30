@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "shoot": "tsx scripts/shoot.ts"
+    "test": "vitest run",
+    "shoot": "tsx scripts/shoot.ts",
+    "shoot-game": "tsx scripts/shoot-game.ts"
   },
   "dependencies": {
     "@react-three/drei": "10.7.4",
@@ -26,6 +28,7 @@
     "eslint-config-next": "15.5.28",
     "playwright": "1.55.0",
     "tsx": "4.20.5",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vitest": "^3.2.4"
   }
 }
